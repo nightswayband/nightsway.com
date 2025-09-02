@@ -490,69 +490,39 @@
   </section>
 	
 
-<!-- Gallery Section -->
-<section id="gallery" class="gallery-section">
-  <div class="swiper">
-    <div class="swiper-wrapper">
-      <!-- Slides will be injected here by JS -->
+    <!-- Gallery -->
+  <section id="gallery" class="section">
+    <h2>Gallery</h2>
+    <p class="muted">Latest shots</p>
+    <!-- Swiper -->
+    <div class="swiper">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+  <a href="https://lh3.googleusercontent.com/pw/AP1GczOYIxTzoAMXBIPMmlWbOAqeeGvrw_t0ZLoc7xSKUuk29ZbFnLE-ZNEiPrqQOWwPEM-pqFsl8cRRUuoDD7GCK_oWxhCnSvRSX-WSr8PQEdm0ScvSIMJFkGBT89rO6HCnKoH1XgKd_VfmRmTK5ws9rhA=w1179-h770-s-no-gm?authuser=0" 
+     class="glightbox" 
+     data-type="image">
+    <img src="https://lh3.googleusercontent.com/pw/AP1GczOYIxTzoAMXBIPMmlWbOAqeeGvrw_t0ZLoc7xSKUuk29ZbFnLE-ZNEiPrqQOWwPEM-pqFsl8cRRUuoDD7GCK_oWxhCnSvRSX-WSr8PQEdm0ScvSIMJFkGBT89rO6HCnKoH1XgKd_VfmRmTK5ws9rhA=w1179-h770-s-no-gm?authuser=0" 
+         alt="press shot">
+  </a>
+</div>
+
+        <div class="swiper-slide">
+          <a href="https://lh3.googleusercontent.com/pw/AP1GczP_Skm6qlmY-EjTo9LagD9RMv1-PySOk-FP9HtUZ3EpJG3rDnNQW_6KkweOWm5kWycCRidVr1h-A7kvlryLrmOMTbYYOL_DpgevjEORGO99u_3skaus9T1-ZBkKrPpIuqyVAoKsWjCXtJi-uPyULrI=w1834-h1376-s-no-gm?authuser=0" class="glightbox">
+            <img src="https://lh3.googleusercontent.com/pw/AP1GczP_Skm6qlmY-EjTo9LagD9RMv1-PySOk-FP9HtUZ3EpJG3rDnNQW_6KkweOWm5kWycCRidVr1h-A7kvlryLrmOMTbYYOL_DpgevjEORGO99u_3skaus9T1-ZBkKrPpIuqyVAoKsWjCXtJi-uPyULrI=w1834-h1376-s-no-gm?authuser=0" alt="nightsway crowd">
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="https://lh3.googleusercontent.com/pw/AP1GczMNOvzc7Alfl4F68i3_-4j6LioeFQ5ja5Kn6OY1flJBgvU9fQ50HbdxRMYyPBhkI1szcSCC_6A9BtaZPL2PUnq6MiwQvvovfuagdbRMu1zZyJt9JNiY5Xc8azF-5-jw7LOb6hqdpgoLJ8Pueh9szu0=w1032-h1376-s-no-gm?authuser=0" class="glightbox">
+            <img src="https://lh3.googleusercontent.com/pw/AP1GczMNOvzc7Alfl4F68i3_-4j6LioeFQ5ja5Kn6OY1flJBgvU9fQ50HbdxRMYyPBhkI1szcSCC_6A9BtaZPL2PUnq6MiwQvvovfuagdbRMu1zZyJt9JNiY5Xc8azF-5-jw7LOb6hqdpgoLJ8Pueh9szu0=w1032-h1376-s-no-gm?authuser=0" alt="ruairi smiling">
+          </a>
+        </div>
+      </div>
+      <!-- Navigation buttons -->
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-pagination"></div>
     </div>
-
-    <!-- Add pagination and navigation -->
-    <div class="swiper-pagination"></div>
-    <div class="swiper-button-next"></div>
-    <div class="swiper-button-prev"></div>
-  </div>
-</section>
-
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
-<script>
-  fetch('Assets/gallery/gallery.json')
-    .then(response => response.json())
-    .then(data => {
-      const wrapper = document.querySelector('.swiper-wrapper');
-
-      data.forEach(item => {
-        const slide = document.createElement('div');
-        slide.classList.add('swiper-slide');
-
-        const link = document.createElement('a');
-        link.href = "/" + item; // ✅ absolute path for GitHub Pages
-        link.setAttribute('class', 'glightbox');
-        link.setAttribute('data-gallery', 'gallery');
-
-        const img = document.createElement('img');
-        img.src = "/" + item;  // ✅ absolute path for GitHub Pages
-        img.alt = "gallery image";
-
-        link.appendChild(img);
-        slide.appendChild(link);
-        wrapper.appendChild(slide);
-      });
-
-      // Init Swiper
-      new Swiper('.swiper', {
-        loop: true,
-        slidesPerView: 1,
-        spaceBetween: 10,
-        pagination: {
-          el: '.swiper-pagination',
-          clickable: true,
-        },
-        navigation: {
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        },
-      });
-
-      // Init Lightbox
-      GLightbox({ selector: '.glightbox' });
-    })
-    .catch(err => console.error("Gallery JSON load failed:", err));
-</script>
-
-
+  </section>
 
   <footer>
     <div style="max-width:1100px;margin:0 auto">
