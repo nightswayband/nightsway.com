@@ -490,39 +490,61 @@
   </section>
 	
 
-    <!-- Gallery -->
-  <section id="gallery" class="section">
-    <h2>Gallery</h2>
-    <p class="muted">Latest shots</p>
-    <!-- Swiper -->
-    <div class="swiper">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide">
-  <a href="https://lh3.googleusercontent.com/pw/AP1GczOYIxTzoAMXBIPMmlWbOAqeeGvrw_t0ZLoc7xSKUuk29ZbFnLE-ZNEiPrqQOWwPEM-pqFsl8cRRUuoDD7GCK_oWxhCnSvRSX-WSr8PQEdm0ScvSIMJFkGBT89rO6HCnKoH1XgKd_VfmRmTK5ws9rhA=w1179-h770-s-no-gm?authuser=0" 
-     class="glightbox" 
-     data-type="image">
-    <img src="https://lh3.googleusercontent.com/pw/AP1GczOYIxTzoAMXBIPMmlWbOAqeeGvrw_t0ZLoc7xSKUuk29ZbFnLE-ZNEiPrqQOWwPEM-pqFsl8cRRUuoDD7GCK_oWxhCnSvRSX-WSr8PQEdm0ScvSIMJFkGBT89rO6HCnKoH1XgKd_VfmRmTK5ws9rhA=w1179-h770-s-no-gm?authuser=0" 
-         alt="press shot">
-  </a>
-</div>
+<!-- Gallery -->
+<section id="gallery" class="section">
+  <h2>Gallery</h2>
+  <p class="muted">Latest shots</p>
 
-        <div class="swiper-slide">
-          <a href="https://lh3.googleusercontent.com/pw/AP1GczP_Skm6qlmY-EjTo9LagD9RMv1-PySOk-FP9HtUZ3EpJG3rDnNQW_6KkweOWm5kWycCRidVr1h-A7kvlryLrmOMTbYYOL_DpgevjEORGO99u_3skaus9T1-ZBkKrPpIuqyVAoKsWjCXtJi-uPyULrI=w1834-h1376-s-no-gm?authuser=0" class="glightbox">
-            <img src="https://lh3.googleusercontent.com/pw/AP1GczP_Skm6qlmY-EjTo9LagD9RMv1-PySOk-FP9HtUZ3EpJG3rDnNQW_6KkweOWm5kWycCRidVr1h-A7kvlryLrmOMTbYYOL_DpgevjEORGO99u_3skaus9T1-ZBkKrPpIuqyVAoKsWjCXtJi-uPyULrI=w1834-h1376-s-no-gm?authuser=0" alt="nightsway crowd">
-          </a>
-        </div>
-        <div class="swiper-slide">
-          <a href="https://lh3.googleusercontent.com/pw/AP1GczMNOvzc7Alfl4F68i3_-4j6LioeFQ5ja5Kn6OY1flJBgvU9fQ50HbdxRMYyPBhkI1szcSCC_6A9BtaZPL2PUnq6MiwQvvovfuagdbRMu1zZyJt9JNiY5Xc8azF-5-jw7LOb6hqdpgoLJ8Pueh9szu0=w1032-h1376-s-no-gm?authuser=0" class="glightbox">
-            <img src="https://lh3.googleusercontent.com/pw/AP1GczMNOvzc7Alfl4F68i3_-4j6LioeFQ5ja5Kn6OY1flJBgvU9fQ50HbdxRMYyPBhkI1szcSCC_6A9BtaZPL2PUnq6MiwQvvovfuagdbRMu1zZyJt9JNiY5Xc8azF-5-jw7LOb6hqdpgoLJ8Pueh9szu0=w1032-h1376-s-no-gm?authuser=0" alt="ruairi smiling">
-          </a>
-        </div>
-      </div>
-      <!-- Navigation buttons -->
-      <div class="swiper-button-next"></div>
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-pagination"></div>
+  <!-- Swiper -->
+  <div class="swiper">
+    <div class="swiper-wrapper" id="gallery-wrapper">
+      <!-- Slides will be injected here by JS -->
     </div>
-  </section>
+
+    <!-- Navigation buttons -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-pagination"></div>
+  </div>
+</section>
+
+<script>
+  // Fetch gallery images from JSON
+  fetch('Assets/gallery/gallery.json')
+    .then(res => res.json())
+    .then(images => {
+      const wrapper = document.getElementById('gallery-wrapper');
+
+      images.forEach(src => {
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+        slide.innerHTML = `
+          <a href="${src}" class="glightbox" data-type="image">
+            <img src="${src}" alt="Gallery image">
+          </a>
+        `;
+        wrapper.appendChild(slide);
+      });
+
+      // Initialize Swiper
+      const swiper = new Swiper('.swiper', {
+        loop: true,
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+      });
+
+      // Initialize GLightbox
+      GLightbox({ selector: '.glightbox' });
+    })
+    .catch(err => console.error('Failed to load gallery images:', err));
+</script>
+
 
   <footer>
     <div style="max-width:1100px;margin:0 auto">
