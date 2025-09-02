@@ -510,38 +510,38 @@
 
 <script>
   // Fetch gallery images from JSON
-  fetch('Assets/gallery/gallery.json')
-    .then(res => res.json())
-    .then(images => {
-      const wrapper = document.getElementById('gallery-wrapper');
+fetch('Assets/gallery/gallery.json')
+  .then(response => response.json())
+  .then(data => {
+    const wrapper = document.querySelector('.swiper-wrapper');
+    data.forEach(item => {
+      const slide = document.createElement('div');
+      slide.classList.add('swiper-slide');
 
-      images.forEach(src => {
-        const slide = document.createElement('div');
-        slide.className = 'swiper-slide';
-        slide.innerHTML = `
-          <a href="${src}" class="glightbox" data-type="image">
-            <img src="${src}" alt="Gallery image">
-          </a>
-        `;
-        wrapper.appendChild(slide);
-      });
+      const link = document.createElement('a');
+      link.href = "/" + item; // ✅ absolute path for GitHub Pages
+      link.setAttribute('class', 'glightbox');
+      link.setAttribute('data-gallery', 'gallery');
 
-      // Initialize Swiper
-      const swiper = new Swiper('.swiper', {
-        loop: true,
-        navigation: {
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        },
-        pagination: {
-          el: '.swiper-pagination',
-          clickable: true,
-        },
-      });
+      const img = document.createElement('img');
+      img.src = "/" + item; // ✅ absolute path
+      img.alt = "gallery image";
 
-      // Initialize GLightbox
-      GLightbox({ selector: '.glightbox' });
-    })
+      link.appendChild(img);
+      slide.appendChild(link);
+      wrapper.appendChild(slide);
+    });
+
+    new Swiper('.swiper', {
+      loop: true,
+      slidesPerView: 1,
+      spaceBetween: 10,
+      pagination: { el: '.swiper-pagination', clickable: true },
+      navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+    });
+
+    GLightbox({ selector: '.glightbox' });
+  });
     .catch(err => console.error('Failed to load gallery images:', err));
 </script>
 
