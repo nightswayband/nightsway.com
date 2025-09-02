@@ -1,0 +1,35 @@
+name: Update Gallery JSON
+
+on:
+  push:
+    paths:
+      - 'Assets/gallery/**'
+
+jobs:
+  generate-gallery-json:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Generate gallery.json (sorted by date)
+      run: |
+        GALLERY_FOLDER="Assets/gallery"
+        JSON_FILE="$GALLERY_FOLDER/gallery.json"
+        echo "[" > $JSON_FILE
+        # List images sorted by modification time, newest first
+        for img in $(ls -t $GALLERY_FOLDER | grep -E '\.(jpg|jpeg|png|webp|gif)$'); do
+          echo "  \"$GALLERY_FOLDER/$img\"," >> $JSON_FILE
+        done
+        # Remove trailing comma from last line
+        sed -i '$ s/,$//' $JSON_FILE
+        echo "]" >> $JSON_FILE
+
+    - name: Commit gallery.json
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add Assets/gallery/gallery.json
+        git commit -m "Auto-update gallery.json [skip ci]" || echo "No changes to commit"
+        git push
