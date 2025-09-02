@@ -490,60 +490,68 @@
   </section>
 	
 
-<!-- Gallery -->
-<section id="gallery" class="section">
-  <h2>Gallery</h2>
-  <p class="muted">Latest shots</p>
-
-  <!-- Swiper -->
+<!-- Gallery Section -->
+<section id="gallery" class="gallery-section">
   <div class="swiper">
-    <div class="swiper-wrapper" id="gallery-wrapper">
+    <div class="swiper-wrapper">
       <!-- Slides will be injected here by JS -->
     </div>
 
-    <!-- Navigation buttons -->
+    <!-- Add pagination and navigation -->
+    <div class="swiper-pagination"></div>
     <div class="swiper-button-next"></div>
     <div class="swiper-button-prev"></div>
-    <div class="swiper-pagination"></div>
   </div>
 </section>
 
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script>
-  // Fetch gallery images from JSON
-fetch('Assets/gallery/gallery.json')
-  .then(response => response.json())
-  .then(data => {
-    const wrapper = document.querySelector('.swiper-wrapper');
-    data.forEach(item => {
-      const slide = document.createElement('div');
-      slide.classList.add('swiper-slide');
+  fetch('Assets/gallery/gallery.json')
+    .then(response => response.json())
+    .then(data => {
+      const wrapper = document.querySelector('.swiper-wrapper');
 
-      const link = document.createElement('a');
-      link.href = "/" + item; // ✅ absolute path for GitHub Pages
-      link.setAttribute('class', 'glightbox');
-      link.setAttribute('data-gallery', 'gallery');
+      data.forEach(item => {
+        const slide = document.createElement('div');
+        slide.classList.add('swiper-slide');
 
-      const img = document.createElement('img');
-      img.src = "/" + item; // ✅ absolute path
-      img.alt = "gallery image";
+        const link = document.createElement('a');
+        link.href = "/" + item; // ✅ absolute path for GitHub Pages
+        link.setAttribute('class', 'glightbox');
+        link.setAttribute('data-gallery', 'gallery');
 
-      link.appendChild(img);
-      slide.appendChild(link);
-      wrapper.appendChild(slide);
-    });
+        const img = document.createElement('img');
+        img.src = "/" + item;  // ✅ absolute path for GitHub Pages
+        img.alt = "gallery image";
 
-    new Swiper('.swiper', {
-      loop: true,
-      slidesPerView: 1,
-      spaceBetween: 10,
-      pagination: { el: '.swiper-pagination', clickable: true },
-      navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-    });
+        link.appendChild(img);
+        slide.appendChild(link);
+        wrapper.appendChild(slide);
+      });
 
-    GLightbox({ selector: '.glightbox' });
-  });
-    .catch(err => console.error('Failed to load gallery images:', err));
+      // Init Swiper
+      new Swiper('.swiper', {
+        loop: true,
+        slidesPerView: 1,
+        spaceBetween: 10,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+      });
+
+      // Init Lightbox
+      GLightbox({ selector: '.glightbox' });
+    })
+    .catch(err => console.error("Gallery JSON load failed:", err));
 </script>
+
 
 
   <footer>
