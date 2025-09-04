@@ -558,7 +558,8 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       if (window.innerWidth < 600) { // mobile
         scale = Math.min(window.innerWidth * 0.95 / GAME_WIDTH, window.innerHeight * 0.35 / GAME_HEIGHT);
       } else { // desktop
-        scale = Math.min(600 / GAME_WIDTH, window.innerHeight * 0.35 / GAME_HEIGHT);
+        // make use of more horizontal space but keep vertical space reasonable
+        scale = Math.min(Math.min(800, window.innerWidth * 0.8) / GAME_WIDTH, window.innerHeight * 0.45 / GAME_HEIGHT);
       }
       canvas.style.width = GAME_WIDTH * scale + "px";
       canvas.style.height = GAME_HEIGHT * scale + "px";
@@ -587,7 +588,7 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       frameNo = 0;
       myGamePiece = new component(40, 40, gamePieceImage, 10, 120, "image");
       myGamePiece.gravity = 0.05;
-      myScore = new component("30px", "Inter", "#b9bac6", 10, 40, "text");
+      myScore = new component("30px", "Inter", "#b9bac6",  10, 40, "text");
 
       clearInterval(gameInterval);
       gameInterval = setInterval(updateGameArea, 20);
@@ -691,7 +692,7 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       if (myGamePiece) myGamePiece.gravity = n;
     }
 
-    // Pointer events
+    // Pointer events for PC + mobile
     canvas.addEventListener("pointerdown", e => accelerate(-0.2));
     canvas.addEventListener("pointerup", e => accelerate(0.05));
 
@@ -703,8 +704,6 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
     document.getElementById("gameContainer").style.userSelect = "none";
   </script>
 </section>
-
-
 
 
 
