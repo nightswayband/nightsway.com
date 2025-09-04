@@ -4,10 +4,6 @@ on:
   push:
     paths:
       - 'Assets/gallery/**'
-    # Prevent infinite loops when only gallery.json changes
-    paths-ignore:
-      - 'Assets/gallery/gallery.json'
-  # Let you run it manually from the Actions tab
   workflow_dispatch:
 
 permissions:
@@ -15,10 +11,12 @@ permissions:
 
 jobs:
   update-gallery:
+    # allow manual runs; skip runs triggered by the workflow's own `[skip ci]` commit
+    if: github.event_name == 'workflow_dispatch' || (github.event.head_commit != null && !contains(github.event.head_commit.message, '[skip ci]'))
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository (full history for git timestamps)
+      - name: Checkout repository (full history)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -28,26 +26,24 @@ jobs:
           git config --local user.name "GitHub Actions"
           git config --local user.email "action@github.com"
 
-      - name: Generate gallery.json (newest first by commit date)
+      - name: Generate gallery.json (newest-first)
         run: |
           python3 - << 'PY'
           import os, json, subprocess
           GALLERY_DIR = os.path.join("Assets","gallery")
-          exts = {".jpg",".jpeg",".png",".gif",".webp",".avif"}  # extend as you like
+          exts = {".jpg",".jpeg",".png",".gif",".webp",".avif"}
 
           entries = []
-          for name in os.listdir(GALLERY_DIR):
-            p = os.path.join(GALLERY_DIR, name)
-            ext = os.path.splitext(name)[1].lower()
-            if os.path.isfile(p) and ext in exts:
-              try:
-                ts = int(subprocess.check_output(
-                  ["git","log","-1","--format=%ct","--",p],
-                  text=True
-                ).strip() or "0")
-              except Exception:
-                ts = 0
-              entries.append((ts, f"Assets/gallery/{name}"))
+          if os.path.isdir(GALLERY_DIR):
+            for name in os.listdir(GALLERY_DIR):
+              p = os.path.join(GALLERY_DIR, name)
+              ext = os.path.splitext(name)[1].lower()
+              if os.path.isfile(p) and ext in exts:
+                try:
+                  ts = int(subprocess.check_output(["git","log","-1","--format=%ct","--",p], text=True).strip() or "0")
+                except Exception:
+                  ts = 0
+                entries.append((ts, f"Assets/gallery/{name}"))
 
           entries.sort(key=lambda x: x[0], reverse=True)
           out = [path for _, path in entries]
@@ -61,7 +57,7 @@ jobs:
 
       - name: Commit changes (if any)
         run: |
-          git add Assets/gallery/gallery.json
+          git add Assets/gallery/gallery.json || true
           git diff --staged --quiet || git commit -m "Auto-update gallery.json [skip ci]"
 
       - name: Push changes
