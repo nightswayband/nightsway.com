@@ -538,8 +538,8 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
 	
 <section id="game" class="section">
   <h2>Flappy Sharnald</h2>
-  <div id="gameContainer" style="display:flex;flex-direction:column;align-items:center;gap:12px;touch-action:none;">
-    <canvas id="gameCanvas" style="border:1px solid var(--border); background-color:var(--bg-soft); touch-action:none;"></canvas>
+  <div id="gameContainer" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+    <canvas id="gameCanvas"></canvas>
     <button id="startButton" class="btn accent">Start Game</button>
     <button id="playAgainButton" class="btn accent" style="display:none;">Play Again</button>
   </div>
@@ -548,13 +548,17 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    // Set initial canvas size
+    // Fixed internal game resolution
+    const GAME_WIDTH = 480;
+    const GAME_HEIGHT = 270;
+    canvas.width = GAME_WIDTH;
+    canvas.height = GAME_HEIGHT;
+
+    // Scale canvas to fit screen while preserving aspect ratio
     function resizeCanvas() {
-      const maxWidth = 480;
-      const maxHeight = 270;
-      const ratio = Math.min(window.innerWidth * 0.95 / maxWidth, window.innerHeight * 0.35 / maxHeight, 1);
-      canvas.width = maxWidth * ratio;
-      canvas.height = maxHeight * ratio;
+      const scale = Math.min(window.innerWidth * 0.95 / GAME_WIDTH, window.innerHeight * 0.35 / GAME_HEIGHT, 1);
+      canvas.style.width = GAME_WIDTH * scale + "px";
+      canvas.style.height = GAME_HEIGHT * scale + "px";
     }
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
@@ -563,8 +567,8 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
     let gameInterval = null;
     let myGameStarted = false;
     let gameOver = false;
+    let myGameAreaFrameNo = 0;
 
-    // preload gamepiece image
     const gamePieceImage = new Image();
     gamePieceImage.src = "https://raw.githubusercontent.com/nightswayband/nightsway.com/refs/heads/main/Assets/gamepiece.PNG";
 
@@ -577,9 +581,10 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       document.getElementById("playAgainButton").style.display = "none";
 
       myObstacles = [];
+      myGameAreaFrameNo = 0;
       myGamePiece = new component(40, 40, gamePieceImage, 10, 120, "image");
       myGamePiece.gravity = 0.05;
-      myScore = new component("30px", "Inter", "#b9bac6", canvas.width - 150, 40, "text");
+      myScore = new component("30px", "Inter", "#b9bac6", GAME_WIDTH - 150, 40, "text");
 
       clearInterval(gameInterval);
       gameInterval = setInterval(updateGameArea, 20);
@@ -615,13 +620,12 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       this.newPos = function () {
         this.gravitySpeed += this.gravity;
         this.y += this.gravitySpeed;
-        this.x += 0; // no horizontal movement
         this.hitBounds();
       };
 
       this.hitBounds = function () {
-        if (this.y + this.height > canvas.height) {
-          this.y = canvas.height - this.height;
+        if (this.y + this.height > GAME_HEIGHT) {
+          this.y = GAME_HEIGHT - this.height;
           this.gravitySpeed = 0;
         }
         if (this.y < 0) {
@@ -650,12 +654,11 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
         }
       }
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (myGameAreaFrameNo === undefined) myGameAreaFrameNo = 0;
+      ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
       myGameAreaFrameNo++;
 
       if (myGameAreaFrameNo === 1 || everyinterval(150)) {
-        const x = canvas.width;
+        const x = GAME_WIDTH;
         const minHeight = 20;
         const maxHeight = 200;
         const height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
@@ -685,22 +688,19 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       if (myGamePiece) myGamePiece.gravity = n;
     }
 
-    // Pointer events for mobile + desktop
+    // Pointer events
     canvas.addEventListener("pointerdown", e => accelerate(-0.2));
     canvas.addEventListener("pointerup", e => accelerate(0.05));
 
-    // Start button
+    // Buttons
     document.getElementById("startButton").addEventListener("click", startGame);
-    document.getElementById("playAgainButton").addEventListener("click", () => {
-      myObstacles = [];
-      myGameAreaFrameNo = 0;
-      startGame();
-    });
+    document.getElementById("playAgainButton").addEventListener("click", resetGame);
 
     // Prevent text selection
     document.getElementById("gameContainer").style.userSelect = "none";
   </script>
 </section>
+
 
 
 
