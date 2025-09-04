@@ -1,36 +1,70 @@
-name: Update Gallery JSON
+name: Update Gallery JSON (Newest First)
 
 on:
   push:
     paths:
       - 'Assets/gallery/**'
+    # Prevent infinite loops when only gallery.json changes
+    paths-ignore:
+      - 'Assets/gallery/gallery.json'
+  # Let you run it manually from the Actions tab
+  workflow_dispatch:
 
 permissions:
-  contents: write  # Allow committing changes
+  contents: write
 
 jobs:
-  build:
+  update-gallery:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository (full history for git timestamps)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Set up Git
-      run: |
-        git config --local user.name "GitHub Actions"
-        git config --local user.email "action@github.com"
+      - name: Set up Git author
+        run: |
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "action@github.com"
 
-    - name: Generate gallery.json
-      run: |
-        cd Assets/gallery
-        # Only include image files, keep extensions
-        ls *.jpg *.jpeg *.png *.gif 2>/dev/null | jq -R -s -c 'split("\n")[:-1] | map("Assets/gallery/" + .)' > gallery.json
-        cd ../../
-        git add Assets/gallery/gallery.json
-        git commit -m "Auto-update gallery.json [skip ci]" || echo "No changes to commit"
+      - name: Generate gallery.json (newest first by commit date)
+        run: |
+          python3 - << 'PY'
+          import os, json, subprocess
+          GALLERY_DIR = os.path.join("Assets","gallery")
+          exts = {".jpg",".jpeg",".png",".gif",".webp",".avif"}  # extend as you like
 
-    - name: Push changes
-      uses: ad-m/github-push-action@v0.6.0
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+          entries = []
+          for name in os.listdir(GALLERY_DIR):
+            p = os.path.join(GALLERY_DIR, name)
+            ext = os.path.splitext(name)[1].lower()
+            if os.path.isfile(p) and ext in exts:
+              try:
+                ts = int(subprocess.check_output(
+                  ["git","log","-1","--format=%ct","--",p],
+                  text=True
+                ).strip() or "0")
+              except Exception:
+                ts = 0
+              entries.append((ts, f"Assets/gallery/{name}"))
+
+          entries.sort(key=lambda x: x[0], reverse=True)
+          out = [path for _, path in entries]
+
+          os.makedirs(GALLERY_DIR, exist_ok=True)
+          with open(os.path.join(GALLERY_DIR, "gallery.json"), "w") as f:
+            json.dump(out, f, indent=2)
+
+          print(f"Wrote {len(out)} items to Assets/gallery/gallery.json")
+          PY
+
+      - name: Commit changes (if any)
+        run: |
+          git add Assets/gallery/gallery.json
+          git diff --staged --quiet || git commit -m "Auto-update gallery.json [skip ci]"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
