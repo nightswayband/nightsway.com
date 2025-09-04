@@ -1,541 +1,3 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>nightsway.</title>
-  <meta name="description" content="nightsway. — driving guitars, massive melodies & chantable anthems. Indie / alt rock from Leeds." />
-  <meta property="og:title" content="nightsway." />
-  <meta property="og:description" content="Indie / alt rock from Leeds. Driving guitars, massive melodies & chantable anthems." />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="nightsway-logo.png" />
-  <meta name="theme-color" content="#0b0b10" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Anton&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/nightswayband/nightsway.com/refs/heads/main/Assets/thumnail.ico">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
-  <style>
-  :root {
-    --bg:#0b0b10;
-    --bg-soft:#111219;
-    --text:#e9e9ec;
-    --muted:#b9bac6;
-    --accent:#FBE9D0;
-    --card:#12131b;
-    --border:#22232e;
-    --shadow:0 10px 30px rgba(0,0,0,.45);
-    --radius:18px;
-  }
-
-  * { box-sizing:border-box }
-  html { scroll-behavior:smooth }
-  body {
-    margin:0;
-    background:radial-gradient(1200px 600px at 20% -10%,#171823 0%,#0b0b10 55%) fixed var(--bg);
-    color:var(--text);
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    line-height:1.6;
-  }
-
-  a { color:var(--accent); text-decoration:none }
-  img { max-width:100%; display:block }
-
-  /* Nav */
-  header {
-    position:sticky; top:0; z-index:50;
-    backdrop-filter:saturate(130%) blur(6px);
-    background:linear-gradient(180deg,rgba(11,11,16,.85),rgba(11,11,16,.55));
-    border-bottom:1px solid var(--border);
-  }
-  .nav {
-    max-width:1100px; margin:0 auto;
-    display:flex; align-items:center; gap:18px;
-    padding:14px 18px;
-  }
-  .brand { display:flex; align-items:center; gap:12px }
-  .brand img { height:34px; filter:drop-shadow(0 2px 8px rgba(0,0,0,.5)) }
-  .brand span { font:800 18px/1 Inter,sans-serif; letter-spacing:.5px }
-  .menu { margin-left:auto; display:flex; gap:18px; flex-wrap:wrap }
-  .menu a { padding:8px 10px; border-radius:12px; color:var(--text) }
-  .menu a:hover { background:var(--bg-soft) }
-  .burger { display:none; margin-left:auto; background:none; border:0; color:var(--text); font-size:26px }
-  @media (max-width:900px) {
-    .menu { display:none; width:100%; margin:10px 0 0 }
-    .menu.open { display:grid; grid-template-columns:1fr 1fr; gap:10px }
-    .burger { display:block }
-  }
-
-  /* Hero */
-  .hero {
-    max-width:1100px; margin:0 auto;
-    padding:80px 18px 40px;
-    display:grid; gap:24px;
-    grid-template-columns:1.2fr .8fr;
-    align-items:center;
-  }
-  @media (max-width:900px) {
-    .hero { grid-template-columns:1fr; padding-top:48px }
-  }
-  .hero h1 {
-    font-family:Anton,Impact,Inter,system-ui;
-    font-size:72px; line-height:.95;
-    margin:0 0 10px;
-    letter-spacing:.5px; text-transform:lowercase; color:var(--accent);
-    text-shadow:0 12px 28px rgba(251,233,208,.08);
-  }
-  .hero p { color:var(--muted); font-size:18px; margin:0 0 18px }
-  .cta { display:flex; gap:12px; flex-wrap:wrap }
-  .btn {
-    border:1px solid var(--border);
-    background:var(--card);
-    color:var(--text);
-    padding:12px 16px;
-    border-radius:14px;
-    box-shadow:var(--shadow);
-    display:inline-flex; gap:10px; align-items:center;
-  }
-  .btn.accent {
-    background:var(--accent); color:#101012;
-    border-color:transparent; font-weight:700;
-  }
-
-  /* Sections */
-  .section {
-    max-width:1100px; margin:0 auto;
-    padding:64px 18px;
-    border-top:1px solid var(--border);
-  }
-  .section h2 {
-    font:800 34px/1.15 Inter,sans-serif;
-    margin:0 0 18px;
-    text-transform:uppercase; letter-spacing:1px;
-  }
-  .grid { display:grid; gap:18px }
-  .grid.two { grid-template-columns:1fr 1fr }
-  .grid.three { grid-template-columns:repeat(3,1fr) }
-  @media (max-width:900px) {
-    .grid.two,.grid.three { grid-template-columns:1fr }
-  }
-  .card {
-    background:linear-gradient(180deg,var(--card),#0e0f15);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:20px;
-    box-shadow:var(--shadow);
-  }
-  .linkcard { background:linear-gradient(180deg,var(--card),#0e0f15);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:20px;
-    box-shadow:var(--shadow);}
-	  
-  .linkcard:hover {
-	  background: #fbe9d0;
-	  --accent:#22232e;
-	  --muted:#3a3b4a;
-	  }
-	  
-  .muted { color:var(--muted) }
-
-  /* Dates */
-  table { width:100%; border-collapse:collapse }
-  th,td { padding:14px; border-bottom:1px solid var(--border) }
-  th {
-    text-align:left; color:var(--muted);
-    font-weight:600; text-transform:uppercase;
-    font-size:12px; letter-spacing:.6px;
-  }
-  tr:hover td { background:#0f1119 }
-  .pill {
-    display:inline-block;
-    padding:6px 10px;
-    border-radius:999px;
-    border:1px solid var(--border);
-    font-size:12px;
-  }
-
-  /* Gallery grid (unused atm cause i'm using the swiper) */
-  .gallery {
-    display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
-  }
-  .gallery img {
-    border-radius:16px; border:1px solid var(--border);
-    aspect-ratio:1/1; object-fit:cover;
-  }
-  @media (max-width:900px) {
-    .gallery { grid-template-columns:repeat(2,1fr) }
-  }
-
-  /* Swiper */
-  .swiper {
-    width: 100%;
-    max-width: 900px;
-    height: 500px;
-  }
-  .swiper-slide {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .swiper-slide > a > img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;   /* thumbnails cropped */
-    border-radius: 16px;
-    border: 1px solid var(--border);
-  }
-	  
-	canvas {
-   	 border:1px solid #d3d3d3;
-   	 background-color: #f1f1f1;
-	}
-
-  /* Footer */
-  footer {
-    border-top:1px solid var(--border);
-    padding:30px 18px 60px;
-    color:var(--muted);
-    text-align:center;
-  }
-
-  /* Utility */
-  .sr { position:absolute; left:-9999px }
-
-</style>
-</head>
-<body>
-  <!-- Header / Nav -->
-  <header>
-    <nav class="nav">
-      <a class="brand" href="#home" aria-label="nightsway home">
-        <!-- Replace the src with your actual filename -->
-        <img src="https://lh3.googleusercontent.com/pw/AP1GczMQmSjLmb-pZkBCThicLm-F6-rMOZ-kr7bXHEolyHrywoqK-0gLDvQOlXiv3mYU9OKTW0NTxMGMSHPSj58lV2sbBS98DenqDORmC2kGX16GCr_vAV0UwDnbIcOAS0nND9IZw7Eeyfd5UQw4w07eiZA=w2880-h1080-s-no-gm?authuser=0" alt="nightsway. logo" />
-        <!--<span>nightsway.</span> -->
-      </a>
-      <button class="burger" aria-label="Toggle menu" onclick="document.querySelector('.menu').classList.toggle('open')">☰</button>
-      <div class="menu" role="navigation" aria-label="Primary">
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#dates">Gig Dates</a>
-        <a href="#music">Music</a>
-        <a href="#merch">Merch</a>
-        <a href="#contact">Contact</a>
-        <a href="#social">Social</a>
-        <a href="#press">EPK</a>
-        <a href="#gallery">Gallery</a>
-      </div>
-    </nav>
-  </header>
-
-  <!-- Hero -->
-  <section id="home" class="hero">
-    <div>
-      <img src="https://lh3.googleusercontent.com/pw/AP1GczMQmSjLmb-pZkBCThicLm-F6-rMOZ-kr7bXHEolyHrywoqK-0gLDvQOlXiv3mYU9OKTW0NTxMGMSHPSj58lV2sbBS98DenqDORmC2kGX16GCr_vAV0UwDnbIcOAS0nND9IZw7Eeyfd5UQw4w07eiZA=w2880-h1080-s-no-gm?authuser=0" alt="nightsway. logo" />
-      <p class="muted">
-        Indie / alt rock from Leeds. Driving guitars, massive melodies, and chantable anthems — redefining the north-west indie scene.
-      </p>
-      <div class="cta">
-        <a class="btn accent" href="#music">Listen on Spotify</a>
-        <a class="btn" href="#dates">See Gig Dates</a>
-      </div>
-    </div>
-    <div class="card">
-      <!-- Spotify Artist Embed -->
-      <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/6aRrCq0vs0EC9Bhu6281YX?utm_source=generator&theme=0"
-        width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"
-        title="nightsway. on Spotify"></iframe>
-    </div>
-  </section>
-
-  <!-- About -->
-  <section id="about" class="section">
-    <h2>About</h2>
-    <div class="grid two">
-      <div class="card">
-        <p>
-          Driving guitars, massive melodies, and chantable anthems are just some of the elements that make nightsway’s. music unique.
-          With a blend of indie, hard rock, and shoegaze, the band are redefining the north-west indie scene.
-        </p>
-        <p class="muted">Based in Leeds, UK.</p>
-      </div>
-      <div class="card">
-        <h3 style="margin-top:0">Members</h3>
-        <ul style="margin:0;padding-left:18px">
-          <li>Rhys Hopkins — guitar, vocals</li>
-          <li>Benson Peckham — guitar, vocals</li>
-          <li>Ben O’Shea — bass</li>
-          <li>Ruairi McLean — drums</li>
-        </ul>
-        <p class="muted" style="margin-top:12px">Genres: Indie Rock, Alternative Rock, Shoegaze</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Gig Dates -->
-  <section id="dates" class="section">
-    <h2>Gig Dates</h2>
-    <div class="card">
- 
-  <script charset="utf-8" src="https://widgetv3.bandsintown.com/main.min.js"></script>
-  <a class="bit-widget-initializer"
-    
-	data-artist-name="id_15608582"
-	
-	data-events-to-display=""
-	data-background-color="rgba(17,18,26,255)"
-	data-separator-color="rgba(34,35,46,1)"
-	data-text-color="rgba(255,255,255,1)"
-	data-font="Helvetica"
-	data-auto-style="true"
-	
-	data-button-label-capitalization="uppercase"
-	data-header-capitalization="uppercase"
-	data-location-capitalization="uppercase"
-	data-venue-capitalization="uppercase"
-	data-display-local-dates="true"
-	data-local-dates-position="tab"
-	data-display-past-dates="true"
-	data-display-details="false"
-	data-display-lineup="true"
-	data-display-start-time="false"
-	data-social-share-icon="true"
-	data-display-limit="all"
-	
-	data-date-format="MMM. D, YYYY"
-	data-date-orientation="horizontal"
-	data-date-border-color="#4A4A4A"
-	data-date-border-width="1px"
-	data-date-capitalization="capitalize"
-	data-date-border-radius="10px"
-	
-	data-event-ticket-cta-size="medium"
-	data-event-custom-ticket-text=""
-	data-event-ticket-text="TICKETS"
-	data-event-ticket-icon="false"
-	data-event-ticket-cta-text-color="rgba(255,255,255,1)"
-	data-event-ticket-cta-bg-color="rgba(74,74,74,1)"
-	data-event-ticket-cta-border-color="rgba(74,74,74,1)"
-	data-event-ticket-cta-border-width="0px"
-	data-event-ticket-cta-border-radius="18px"
-	
-	data-sold-out-button-text-color="rgba(255,255,255,1)"
-	data-sold-out-button-background-color="rgba(74,74,74,1)"
-	data-sold-out-button-border-color="rgba(74,74,74,1)"
-	data-sold-out-button-clickable="true"
-	
-	data-event-rsvp-position="left"
-	data-event-rsvp-cta-size="medium"
-	data-event-rsvp-only-show-icon="false"
-	data-event-rsvp-text="RSVP"
-	data-event-rsvp-icon="false"
-	data-event-rsvp-cta-text-color="rgba(74,74,74,1)"
-	data-event-rsvp-cta-bg-color="rgba(251,233,208,1)"
-	data-event-rsvp-cta-border-color="rgba(74,74,74,1)"
-	data-event-rsvp-cta-border-width="1px"
-	data-event-rsvp-cta-border-radius="18px"
-	
-	data-follow-section-position="top"
-	data-follow-section-alignment="center"
-	data-follow-section-header-text="Get updates on new shows, new music, and more"
-	data-follow-section-cta-size="medium"
-	data-follow-section-cta-text="FOLLOW"
-	data-follow-section-cta-icon="false"
-	data-follow-section-cta-text-color="rgba(255,255,255,1)"
-	data-follow-section-cta-bg-color="rgba(74,74,74,1)"
-	data-follow-section-cta-border-color="rgba(74,74,74,1)"
-	data-follow-section-cta-border-width="0px"
-	data-follow-section-cta-border-radius="18px"
-	
-	data-play-my-city-position="bottom"
-	data-play-my-city-alignment="center"
-	data-play-my-city-header-text="Don’t see a show near you?"
-	data-play-my-city-cta-size="medium"
-	data-play-my-city-cta-text="REQUEST A SHOW"
-	data-play-my-city-cta-icon="false"
-	data-play-my-city-cta-text-color="rgba(255,255,255,1)"
-	data-play-my-city-cta-bg-color="rgba(74,74,74,1)"
-	data-play-my-city-cta-border-color="rgba(74,74,74,1)"
-	data-play-my-city-cta-border-width="0px"
-	data-play-my-city-cta-border-radius="18px"
-	
-	data-optin-font=""
-	data-optin-text-color=""
-	data-optin-bg-color=""
-	data-optin-cta-text-color=""
-	data-optin-cta-bg-color=""
-	data-optin-cta-border-width=""
-	data-optin-cta-border-radius=""
-	data-optin-cta-border-color=""
-	
-	data-language="en"
-	data-layout-breakpoint="900"
-	data-app-id=""
-	data-affil-code=""
-	data-bit-logo-position="bottomRight"
-	data-bit-logo-color="rgba(255,255,255,1)"
-	
-    ></a>
-     <!-- <p class="muted" style="margin-top:12px">Promoters: <a href="#contact">get in touch</a> for bookings.</p> -->
-    </div>
-  </section>
-	
-
-  <!-- Music / Discography -->
-  <section id="music" class="section">
-    <h2>Music / Discography</h2>
-    <div class="grid two">
-      <div class="card">
-        <h3 style="margin-top:0">Spotify</h3>
-        <p class="muted">Follow on Spotify to catch new releases first.</p>
-        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/6aRrCq0vs0EC9Bhu6281YX?utm_source=generator&theme=0"
-          width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"
-          title="nightsway. on Spotify"></iframe>
-      </div>
-      <div class="card">
-        <h3 style="margin-top:0">YouTube</h3>
-        <p class="muted">Videos, live sessions & more.</p>
-        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;border:1px solid var(--border)">
-          <iframe src="https://www.youtube.com/embed/iGa8ic_4_dk?si=EoDUCddjIilrzdyr"
-            title="nightsway. on YouTube" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            style="position:absolute;top:0;left:0;width:100%;height:100%" frameborder="0" loading="lazy"></iframe>
-        </div>
-      </div>
-    </div>
-  </section>
-
-	
-  <!-- Merch -->
-  <section id="merch" class="section">
-    <h2>Merch</h2>
-    <div class="grid three">
-      <div class="card"><h3 style="margin:0 0 6px">Tees</h3><p class="muted">Dark, clean, tour-ready. <em>Coming soon.</em></p></div>
-      <div class="card"><h3 style="margin:0 0 6px">Hoodies</h3><p class="muted">Heavyweight, minimal mark. <em>Coming soon.</em></p></div>
-      <div class="card"><h3 style="margin:0 0 6px">Stickers</h3><p class="muted">Logo packs for cases & cabs. <em>Coming soon.</em></p></div>
-    </div>
-  </section>
-	
-
-  <!-- Contact -->
-  <section id="contact" class="section">
-    <h2>Contact</h2>
-    <div class="grid two">
-      <div class="card">
-        <p><strong>Bookings / Press / General:</strong> <a href="mailto:contact@nightsway.uk">contact@nightsway.uk</a></p>
-        <form onsubmit="location.href='mailto:contact@nightsway.uk?subject='+encodeURIComponent(document.getElementById('subj').value)+'&body='+encodeURIComponent(document.getElementById('msg').value); return false;" aria-label="Quick email form">
-          <label class="sr" for="subj">Subject</label>
-          <input id="subj" placeholder="Subject" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg-soft);color:var(--text);margin-bottom:10px">
-          <label class="sr" for="msg">Message</label>
-          <textarea id="msg" placeholder="Message" rows="5" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg-soft);color:var(--text);"></textarea>
-          <div style="margin-top:10px"><button class="btn accent" type="submit">Open Email</button></div>
-        </form>
-      </div>
-      <div class="card">
-        <h3 style="margin-top:0">Based in Leeds</h3>
-        <p class="muted">Available UK-wide and beyond for festivals, support slots, and headline shows.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Social -->
-  <section id="social" class="section">
-    <h2>Social Links</h2>
-    <div class="grid three">
-      <a class="linkcard" href="https://www.instagram.com/wearenightsway/" target="_blank" rel="noopener">
-        <strong>Instagram</strong><p class="muted">@wearenightsway</p>
-      </a>
-      <a class="linkcard" href="https://www.tiktok.com/@wearenightsway" target="_blank" rel="noopener">
-        <strong>TikTok</strong><p class="muted">@wearenightsway</p>
-      </a>
-      <a class="linkcard" href="https://www.youtube.com/@wearenightsway" target="_blank" rel="noopener">
-        <strong>YouTube</strong><p class="muted">youtube.com/@wearenightsway</p>
-      </a>
-      <a class="linkcard" href="https://open.spotify.com/artist/6aRrCq0vs0EC9Bhu6281YX" target="_blank" rel="noopener">
-        <strong>Spotify</strong><p class="muted">Follow & stream</p>
-      </a>
-		<a class="linkcard" href="https://music.apple.com/us/artist/nightsway/1760181763" target="_blank" rel="noopener">
-        <strong>Apple Music</strong><p class="muted">Follow & stream</p>
-      </a>
-      <a class="linkcard" href="#contact">
-        <strong>Email</strong><p class="muted">contact@nightsway.uk</p>
-      </a>
-    </div>
-  </section>
-
-  <!-- Press Kit / EPK -->
-  <section id="press" class="section">
-    <h2>Press Kit / EPK</h2>
-    <div class="grid two">
-      <div class="card">
-        <h3 style="margin-top:0">At a glance</h3>
-        <ul style="margin:0;padding-left:18px">
-          <li>Origin: Leeds, UK</li>
-          <li>Genres: Indie Rock, Alt Rock, Shoegaze</li>
-          <li>For fans of: Catfish and the Bottlemen, Wunderhorse, Royston Club&nbsp;</li>
-          <li>Contact: <a href="mailto:contact@nightsway.uk">contact@nightsway.uk</a></li>
-        </ul>
-      </div>
-      <div class="card">
-        <p>Need logos, photos, and the bio in one place? Download the press kit.</p>
-
-<a class="btn accent" 
-   href="https://raw.githubusercontent.com/nightswayband/nightsway.com/171b82a8480915be68114589872c28aeee9431da/EPK%20Versions/nightsway%20EPK%20Sep25.pdf" 
-   download>
-   Download EPK
-</a>
-
-      </div>
-    </div>
-	  
-	<div style="position: relative; scroll-behavior: smooth; width: 100%; height: 0; padding-top: 141.4286%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGYh3QuRcE/qHDhKZBdfuAdoeMAf0GYXw/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-  </section>
-	
-
-<section id="gallery" class="section">
-  <h2>Gallery</h2>
-  <p class="muted">Latest shots</p>
-
-  <div class="swiper">
-    <div class="swiper-wrapper" id="gallery-wrapper"></div>
-    <div class="swiper-button-next"></div>
-    <div class="swiper-button-prev"></div>
-    <div class="swiper-pagination"></div>
-  </div>
-</section>
-
-<script>
-fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
-  .then(r => r.json())
-  .then(images => {
-    const wrapper = document.getElementById('gallery-wrapper');
-    images.forEach(path => {
-      const slide = document.createElement('div');
-      slide.className = 'swiper-slide';
-      slide.innerHTML = `
-        <a href="${path}" class="glightbox" data-type="image">
-          <img src="${path}" alt="">
-        </a>`;
-      wrapper.appendChild(slide);
-    });
-
-    // Init/refresh your components AFTER inserting slides
-    const swiper = new Swiper('.swiper', {
-      loop: true,
-      navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-      pagination: { el: '.swiper-pagination' }
-    });
-
-    const lightbox = GLightbox({ selector: '.glightbox' });
-  })
-  .catch(e => console.error('Failed to load gallery.json', e));
-</script>
-	
-	
-	
 <section id="game" class="section">
   <h2>Flappy Sharnald</h2>
   <div id="gameContainer" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
@@ -548,26 +10,29 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    // Fixed internal game resolution
     const GAME_WIDTH = 480;
     const GAME_HEIGHT = 270;
     canvas.width = GAME_WIDTH;
     canvas.height = GAME_HEIGHT;
 
-    // Scale canvas to fit screen while preserving aspect ratio
-    function resizeCanvas() {
-      const scale = Math.min(window.innerWidth * 0.95 / GAME_WIDTH, window.innerHeight * 0.35 / GAME_HEIGHT, 1);
+    function scaleCanvas() {
+      let scale;
+      if (window.innerWidth < 600) { // mobile
+        scale = Math.min(window.innerWidth * 0.95 / GAME_WIDTH, window.innerHeight * 0.35 / GAME_HEIGHT);
+      } else { // desktop
+        scale = Math.min(600 / GAME_WIDTH, window.innerHeight * 0.35 / GAME_HEIGHT);
+      }
       canvas.style.width = GAME_WIDTH * scale + "px";
       canvas.style.height = GAME_HEIGHT * scale + "px";
     }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+    window.addEventListener("resize", scaleCanvas);
+    scaleCanvas();
 
     let myGamePiece, myObstacles = [], myScore;
     let gameInterval = null;
     let myGameStarted = false;
     let gameOver = false;
-    let myGameAreaFrameNo = 0;
+    let frameNo = 0;
 
     const gamePieceImage = new Image();
     gamePieceImage.src = "https://raw.githubusercontent.com/nightswayband/nightsway.com/refs/heads/main/Assets/gamepiece.PNG";
@@ -581,10 +46,10 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       document.getElementById("playAgainButton").style.display = "none";
 
       myObstacles = [];
-      myGameAreaFrameNo = 0;
+      frameNo = 0;
       myGamePiece = new component(40, 40, gamePieceImage, 10, 120, "image");
       myGamePiece.gravity = 0.05;
-      myScore = new component("30px", "Inter", "#b9bac6", GAME_WIDTH - 150, 40, "text");
+      myScore = new component("30px", "Inter", "#b9bac6", 330, 40, "text");
 
       clearInterval(gameInterval);
       gameInterval = setInterval(updateGameArea, 20);
@@ -655,9 +120,9 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       }
 
       ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-      myGameAreaFrameNo++;
+      frameNo++;
 
-      if (myGameAreaFrameNo === 1 || everyinterval(150)) {
+      if (frameNo === 1 || everyinterval(150)) {
         const x = GAME_WIDTH;
         const minHeight = 20;
         const maxHeight = 200;
@@ -666,7 +131,7 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
         const maxGap = 120;
         const gap = Math.floor(Math.random() * (maxGap - minGap + 1) + minGap);
         myObstacles.push(new component(10, height, "#3a3b4a", x, 0));
-        myObstacles.push(new component(10, x - height - gap, "#3a3b4a", x, height + gap));
+        myObstacles.push(new component(10, GAME_HEIGHT - height - gap, "#3a3b4a", x, height + gap));
       }
 
       for (let i = 0; i < myObstacles.length; i++) {
@@ -674,14 +139,14 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
         myObstacles[i].update();
       }
 
-      myScore.text = "SCORE: " + myGameAreaFrameNo;
+      myScore.text = "SCORE: " + frameNo;
       myScore.update();
       myGamePiece.newPos();
       myGamePiece.update();
     }
 
     function everyinterval(n) {
-      return (myGameAreaFrameNo / n) % 1 === 0;
+      return (frameNo / n) % 1 === 0;
     }
 
     function accelerate(n) {
@@ -700,73 +165,3 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
     document.getElementById("gameContainer").style.userSelect = "none";
   </script>
 </section>
-
-
-
-
-
-
-  <footer>
-    <div style="max-width:1100px;margin:0 auto">
-	  <p> Martin smells. </p>
-      <p>&copy; <span id="year"></span> nightsway. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <script>
-    // Set year
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
-
-  <!-- Swiper JS -->
-  <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-  <!-- GLightbox JS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
-
-  <script>
-    // Init Swiper
-    const swiper = new Swiper('.swiper', {
-      loop: true,
-      navigation: {
-        nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev',
-      },
-      pagination: {
-        el: '.swiper-pagination',
-        clickable: true,
-      },
-    });
-
-	 
-  </script>
-	
-  
-
-  <!-- SEO / Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"MusicGroup",
-    "name":"nightsway.",
-    "genre":["Indie Rock","Alternative Rock","Shoegaze"],
-    "foundingLocation":"Leeds, UK",
-    "email":"mailto:contact@nightsway.uk",
-    "image":"nightsway-logo.png",
-    "sameAs":[
-      "https://open.spotify.com/artist/6aRrCq0vs0EC9Bhu6281YX",
-      "https://www.instagram.com/wearenightsway/",
-      "https://www.tiktok.com/@wearenightsway",
-      "https://www.youtube.com/@wearenightsway"
-    ],
-    "member":[
-      {"@type":"Person","name":"Rhys Hopkins","role":"Guitar, Vocals"},
-      {"@type":"Person","name":"Benson Peckham","role":"Guitar, Vocals"},
-      {"@type":"Person","name":"Ben O'Shea","role":"Bass"},
-      {"@type":"Person","name":"Ruairi McLean","role":"Drums"}
-    ],
-    "description":"Driving guitars, massive melodies, and chantable anthems with a blend of indie, hard rock, and shoegaze."
-  }
-  </script>
-</body>
-</html>
