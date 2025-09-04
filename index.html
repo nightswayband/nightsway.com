@@ -537,42 +537,35 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
 	
 	
 <section id="game" class="section">
-	
-  <H2>Flappy Sharnald</H2>
-  <div id="gameContainer" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+  <h2>Flappy Sharnald</h2>
+  <div id="gameContainer" style="display:flex;flex-direction:column;align-items:center;gap:12px; width:100%;">
     <button id="startButton" class="btn accent" onclick="startGame()">Start Game</button>
-    <!-- The canvas will be injected here -->
-    <button id="accelerateButton" onmousedown="accelerate(-0.2)" onmouseup="accelerate(0.05)" class="btn" style="display:none;">
-      Up
-    </button>
     <button id="playAgainButton" class="btn accent" style="display:none;" onclick="resetGame()">Play Again</button>
   </div>
 
   <script>
-    var myGamePiece;
-    var myObstacles = [];
-    var myScore;
-    var myGameStarted = false;
-    var gameOver = false;
+    let myGamePiece;
+    let myObstacles = [];
+    let myScore;
+    let myGameStarted = false;
+    let gameOver = false;
 
     // preload gamepiece image
-    var gamePieceImage = new Image();
+    const gamePieceImage = new Image();
     gamePieceImage.src = "https://raw.githubusercontent.com/nightswayband/nightsway.com/refs/heads/main/Assets/gamepiece.PNG";
 
     function startGame() {
-      if (myGameStarted) return; // prevent restarting mid-game
+      if (myGameStarted) return;
       myGameStarted = true;
       gameOver = false;
 
-      // hide start button, show accelerate button
       document.getElementById("startButton").style.display = "none";
-      document.getElementById("accelerateButton").style.display = "inline-flex";
       document.getElementById("playAgainButton").style.display = "none";
 
       myObstacles = [];
       myGamePiece = new component(40, 40, gamePieceImage, 10, 120, "image");
       myGamePiece.gravity = 0.05;
-      myScore = new component("30px", "Inter", "#b9bac6", 280, 40, "text");
+      myScore = new component("30px", "Inter", "#b9bac6", 20, 40, "text");
       myGameArea.start();
     }
 
@@ -581,16 +574,23 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       startGame();
     }
 
-    var myGameArea = {
+    const myGameArea = {
       canvas: document.createElement("canvas"),
       start: function () {
-        this.canvas.width = 480;
-        this.canvas.height = 270;
+        // Make canvas responsive
+        this.canvas.width = Math.min(480, window.innerWidth - 20);
+        this.canvas.height = this.canvas.width * 0.5625; // 16:9-ish ratio
         this.context = this.canvas.getContext("2d");
+
         if (!this.inserted) {
-          document.getElementById("gameContainer").insertBefore(this.canvas, document.getElementById("accelerateButton"));
+          document.getElementById("gameContainer").insertBefore(this.canvas, document.getElementById("playAgainButton"));
           this.inserted = true;
         }
+
+        // Touch & click anywhere on canvas to accelerate
+        this.canvas.onmousedown = this.canvas.ontouchstart = () => accelerate(-0.2);
+        this.canvas.onmouseup = this.canvas.ontouchend = () => accelerate(0.05);
+
         this.frameNo = 0;
         clearInterval(this.interval);
         this.interval = setInterval(updateGameArea, 20);
@@ -602,7 +602,6 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
 
     function component(width, height, color, x, y, type) {
       this.type = type;
-      this.score = 0;
       this.width = width;
       this.height = height;
       this.speedX = 0;
@@ -612,12 +611,12 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       this.gravity = 0;
       this.gravitySpeed = 0;
       this.update = function () {
-        ctx = myGameArea.context;
-        if (this.type == "text") {
+        const ctx = myGameArea.context;
+        if (this.type === "text") {
           ctx.font = this.width + " " + this.height;
           ctx.fillStyle = color;
           ctx.fillText(this.text, this.x, this.y);
-        } else if (this.type == "image") {
+        } else if (this.type === "image") {
           ctx.drawImage(color, this.x, this.y, this.width, this.height);
         } else {
           ctx.fillStyle = color;
@@ -631,57 +630,61 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
         this.hitBottom();
       }
       this.hitBottom = function () {
-        var rockbottom = myGameArea.canvas.height - this.height;
+        const rockbottom = myGameArea.canvas.height - this.height;
         if (this.y > rockbottom) {
           this.y = rockbottom;
           this.gravitySpeed = 0;
         }
+        if (this.y < 0) {
+          this.y = 0;
+          this.gravitySpeed = 0;
+        }
       }
       this.crashWith = function (otherobj) {
-        var myleft = this.x;
-        var myright = this.x + (this.width);
-        var mytop = this.y;
-        var mybottom = this.y + (this.height);
-        var otherleft = otherobj.x;
-        var otherright = otherobj.x + (otherobj.width);
-        var othertop = otherobj.y;
-        var otherbottom = otherobj.y + (otherobj.height);
-        var crash = true;
-        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
-          crash = false;
-        }
-        return crash;
+        const myleft = this.x;
+        const myright = this.x + this.width;
+        const mytop = this.y;
+        const mybottom = this.y + this.height;
+        const otherleft = otherobj.x;
+        const otherright = otherobj.x + otherobj.width;
+        const othertop = otherobj.y;
+        const otherbottom = otherobj.y + otherobj.height;
+        return !(mybottom < othertop || mytop > otherbottom || myright < otherleft || myleft > otherright);
       }
     }
 
     function updateGameArea() {
-      var x, height, gap, minHeight, maxHeight, minGap, maxGap;
-      for (i = 0; i < myObstacles.length; i += 1) {
+      let x, height, gap, minHeight, maxHeight, minGap, maxGap;
+
+      for (let i = 0; i < myObstacles.length; i++) {
         if (myGamePiece.crashWith(myObstacles[i])) {
-          clearInterval(myGameArea.interval); // stop game on crash
+          clearInterval(myGameArea.interval);
           gameOver = true;
-          document.getElementById("accelerateButton").style.display = "none"; // hide accelerate
-          document.getElementById("playAgainButton").style.display = "inline-flex"; // show play again
+          document.getElementById("playAgainButton").style.display = "inline-flex";
           return;
         }
       }
+
       myGameArea.clear();
       myGameArea.frameNo += 1;
-      if (myGameArea.frameNo == 1 || everyinterval(150)) {
+
+      if (myGameArea.frameNo === 1 || everyinterval(150)) {
         x = myGameArea.canvas.width;
         minHeight = 20;
-        maxHeight = 200;
+        maxHeight = myGameArea.canvas.height - 70;
         height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
         minGap = 50;
-        maxGap = 200;
+        maxGap = 150;
         gap = Math.floor(Math.random() * (maxGap - minGap + 1) + minGap);
         myObstacles.push(new component(10, height, "#3a3b4a", x, 0));
         myObstacles.push(new component(10, x - height - gap, "#3a3b4a", x, height + gap));
       }
-      for (i = 0; i < myObstacles.length; i += 1) {
-        myObstacles[i].x += -1;
+
+      for (let i = 0; i < myObstacles.length; i++) {
+        myObstacles[i].x += -2; // move obstacles faster
         myObstacles[i].update();
       }
+
       myScore.text = "SCORE: " + myGameArea.frameNo;
       myScore.update();
       myGamePiece.newPos();
@@ -689,17 +692,25 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
     }
 
     function everyinterval(n) {
-      if ((myGameArea.frameNo / n) % 1 == 0) { return true; }
-      return false;
+      return (myGameArea.frameNo / n) % 1 === 0;
     }
 
     function accelerate(n) {
-      if (myGamePiece) {
-        myGamePiece.gravity = n;
-      }
+      if (myGamePiece) myGamePiece.gravity = n;
     }
+
+    // Adjust canvas on resize
+    window.addEventListener("resize", () => {
+      if (myGameArea.canvas.inserted) {
+        const ratio = myGameArea.canvas.height / myGameArea.canvas.width;
+        myGameArea.canvas.width = Math.min(480, window.innerWidth - 20);
+        myGameArea.canvas.height = myGameArea.canvas.width * ratio;
+      }
+    });
   </script>
 </section>
+
+
 
 
 
