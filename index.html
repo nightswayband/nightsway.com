@@ -164,6 +164,14 @@
   @media (max-width:900px) {
     .gallery { grid-template-columns:repeat(2,1fr) }
   }
+	  
+    /* Animation keyframes */
+  @keyframes boingIn {
+    0%   { transform: scale(0); }
+    60%  { transform: scale(1.2); }
+    80%  { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
 
   /* Swiper */
   .swiper {
@@ -199,6 +207,42 @@
 
   /* Utility */
   .sr { position:absolute; left:-9999px }
+	  
+#linktree-float {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transform: scale(0);
+  overflow: hidden; /* ensures img stays clipped */
+}
+
+#linktree-float img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%; /* optional, keeps it circular */
+  box-shadow: none;   /* remove the second shadow */
+}
+
+
+  /* Animation keyframes */
+  @keyframes boingIn {
+    0%   { transform: scale(0); }
+    60%  { transform: scale(1.2); }
+    80%  { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
+
+  #linktree-float.show {
+    display: block;
+    animation: boingIn 0.4s ease forwards;
+  }
 
 </style>
 </head>
@@ -715,6 +759,13 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
       <p>&copy; <span id="year"></span> nightsway. All rights reserved.</p>
     </div>
   </footer>
+	
+	
+  <!-- Floating Linktree Icon -->
+  <a href="https://linktr.ee/wearenightsway" target="_blank" id="linktree-float" aria-label="Linktree">
+    <img src="https://raw.githubusercontent.com/nightswayband/nightsway.com/refs/heads/main/Assets/linktree-icon.webp" alt="Linktree" />
+  </a>
+
 
   <script>
     // Set year
@@ -740,6 +791,24 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
         clickable: true,
       },
     });
+	</script>  
+	  
+<script>
+  // Show the floating icon when the #social section is in view
+  const socialSection = document.getElementById("music");
+  const linktreeFloat = document.getElementById("linktree-float");
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        linktreeFloat.classList.add("show");
+      }
+    });
+  }, { threshold: 0.1 });
+
+  if (socialSection) {
+    observer.observe(socialSection);
+  }
 
 	 
   </script>
