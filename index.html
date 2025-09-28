@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> <!-- disables page zoom for flappy sharnald -->
   <title>nightsway.</title>
   <meta name="description" content="nightsway. — driving guitars, massive melodies & chantable anthems. Indie / alt rock from Leeds." />
   <meta property="og:title" content="nightsway." />
@@ -10,6 +11,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:image" content="nightsway-logo.png" />
   <meta name="theme-color" content="#0b0b10" />
+	
 	
 <!-- Preconnects -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -607,187 +609,204 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
     <button id="playAgainButton" class="btn accent" style="display:none;">Play Again</button>
   </div>
 
+  <style>
+    /* Stops Safari/Snapchat/etc. from zooming the canvas */
+    #gameCanvas {
+      touch-action: none; /* disables double-tap zoom + pinch zoom */
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+  </style>
+
   <script>
-  const canvas = document.getElementById("gameCanvas");
-  const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-  const GAME_WIDTH = 480;
-  const GAME_HEIGHT = 270;
+    const GAME_WIDTH = 480;
+    const GAME_HEIGHT = 270;
 
-  let scale = 1;
-  let animationFrameId;
-  let lastTimestamp = 0;
+    let scale = 1;
+    let animationFrameId;
+    let lastTimestamp = 0;
 
-  function resizeCanvas() {
-    // Logical size
-    let maxWidth = Math.min(800, window.innerWidth * 0.9);
-    let maxHeight = window.innerHeight * 0.6;
+    function resizeCanvas() {
+      let maxWidth = Math.min(800, window.innerWidth * 0.9);
+      let maxHeight = window.innerHeight * 0.6;
 
-    scale = Math.min(maxWidth / GAME_WIDTH, maxHeight / GAME_HEIGHT);
+      scale = Math.min(maxWidth / GAME_WIDTH, maxHeight / GAME_HEIGHT);
 
-    // Account for high DPI displays
-const dpr = window.devicePixelRatio || 1;
-canvas.width = GAME_WIDTH * dpr;
-canvas.height = GAME_HEIGHT * dpr;
-canvas.style.width = GAME_WIDTH * scale + "px";
-canvas.style.height = GAME_HEIGHT * scale + "px";
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = GAME_WIDTH * dpr;
+      canvas.height = GAME_HEIGHT * dpr;
+      canvas.style.width = GAME_WIDTH * scale + "px";
+      canvas.style.height = GAME_HEIGHT * scale + "px";
 
-// Only account for DPR — not scaling — in drawing space
-ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // Only apply device pixel ratio
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
 
-  }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
 
-  window.addEventListener("resize", resizeCanvas);
-  resizeCanvas();
+    // Game state
+    let myGamePiece, myObstacles = [], myScore;
+    let myGameStarted = false;
+    let gameOver = false;
+    let frameNo = 0;
 
-  // Game state
-  let myGamePiece, myObstacles = [], myScore;
-  let myGameStarted = false;
-  let gameOver = false;
-  let frameNo = 0;
+    const gamePieceImage = new Image();
+    gamePieceImage.src = "https://raw.githubusercontent.com/nightswayband/nightsway.com/refs/heads/main/Assets/gamepiece.PNG";
 
-  const gamePieceImage = new Image();
-  gamePieceImage.src = "https://raw.githubusercontent.com/nightswayband/nightsway.com/refs/heads/main/Assets/gamepiece.PNG";
+    function startGame() {
+      if (myGameStarted) return;
+      myGameStarted = true;
+      gameOver = false;
 
-  function startGame() {
-    if (myGameStarted) return;
-    myGameStarted = true;
-    gameOver = false;
+      document.getElementById("startButton").style.display = "none";
+      document.getElementById("playAgainButton").style.display = "none";
 
-    document.getElementById("startButton").style.display = "none";
-    document.getElementById("playAgainButton").style.display = "none";
+      myObstacles = [];
+      frameNo = 0;
+      myGamePiece = new component(30, 30, gamePieceImage, 10, 120, "image");
+      myGamePiece.gravity = 0.05;
+      myScore = new component("30px", "Inter", "#b9bac6", 10, 40, "text");
 
-    myObstacles = [];
-    frameNo = 0;
-    myGamePiece = new component(30, 30, gamePieceImage, 10, 120, "image");
-    myGamePiece.gravity = 0.05;
-    myScore = new component("30px", "Inter", "#b9bac6", 10, 40, "text");
+      cancelAnimationFrame(animationFrameId);
+      lastTimestamp = performance.now();
+      requestAnimationFrame(updateGameArea);
+    }
 
-    cancelAnimationFrame(animationFrameId);
-    lastTimestamp = performance.now();
-    requestAnimationFrame(updateGameArea);
-  }
+    function resetGame() {
+      myGameStarted = false;
+      startGame();
+    }
 
-  function resetGame() {
-    myGameStarted = false;
-    startGame();
-  }
+    function component(width, height, color, x, y, type) {
+      this.type = type;
+      this.width = width;
+      this.height = height;
+      this.x = x;
+      this.y = y;
+      this.gravity = 0;
+      this.gravitySpeed = 0;
 
-  function component(width, height, color, x, y, type) {
-    this.type = type;
-    this.width = width;
-    this.height = height;
-    this.x = x;
-    this.y = y;
-    this.gravity = 0;
-    this.gravitySpeed = 0;
+      this.update = function () {
+        if (this.type === "text") {
+          ctx.font = width + " " + height;
+          ctx.fillStyle = color;
+          ctx.fillText(this.text, this.x, this.y);
+        } else if (this.type === "image") {
+          ctx.drawImage(color, this.x, this.y, this.width, this.height);
+        } else {
+          ctx.fillStyle = color;
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+      };
 
-    this.update = function () {
-      if (this.type === "text") {
-        ctx.font = width + " " + height;
-        ctx.fillStyle = color;
-        ctx.fillText(this.text, this.x, this.y);
-      } else if (this.type === "image") {
-        ctx.drawImage(color, this.x, this.y, this.width, this.height);
-      } else {
-        ctx.fillStyle = color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+      this.newPos = function () {
+        this.gravitySpeed += this.gravity;
+        this.y += this.gravitySpeed;
+        this.hitBounds();
+      };
+
+      this.hitBounds = function () {
+        if (this.y + this.height > GAME_HEIGHT) {
+          this.y = GAME_HEIGHT - this.height;
+          this.gravitySpeed = 0;
+        }
+        if (this.y < 0) {
+          this.y = 0;
+          this.gravitySpeed = 0;
+        }
+      };
+
+      this.crashWith = function (otherobj) {
+        return !(
+          this.y + this.height < otherobj.y ||
+          this.y > otherobj.y + otherobj.height ||
+          this.x + this.width < otherobj.x ||
+          this.x > otherobj.x + otherobj.width
+        );
+      };
+    }
+
+    function updateGameArea(timestamp) {
+      const delta = (timestamp - lastTimestamp) / 16.67; // normalize to 60fps
+      lastTimestamp = timestamp;
+
+      for (let i = 0; i < myObstacles.length; i++) {
+        if (myGamePiece.crashWith(myObstacles[i])) {
+          gameOver = true;
+          document.getElementById("playAgainButton").style.display = "inline-flex";
+          return;
+        }
       }
-    };
 
-    this.newPos = function () {
-      this.gravitySpeed += this.gravity;
-      this.y += this.gravitySpeed;
-      this.hitBounds();
-    };
+      ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+      frameNo++;
 
-    this.hitBounds = function () {
-      if (this.y + this.height > GAME_HEIGHT) {
-        this.y = GAME_HEIGHT - this.height;
-        this.gravitySpeed = 0;
+      if (frameNo === 1 || everyinterval(150)) {
+        const x = GAME_WIDTH;
+        const minHeight = 20;
+        const maxHeight = 200;
+        const height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
+        const minGap = 50;
+        const maxGap = 120;
+        const gap = Math.floor(Math.random() * (maxGap - minGap + 1) + minGap);
+        myObstacles.push(new component(10, height, "#3a3b4a", x, 0));
+        myObstacles.push(new component(10, GAME_HEIGHT - height - gap, "#3a3b4a", x, height + gap));
       }
-      if (this.y < 0) {
-        this.y = 0;
-        this.gravitySpeed = 0;
+
+      for (let i = 0; i < myObstacles.length; i++) {
+        myObstacles[i].x -= 1 * delta;
+        myObstacles[i].update();
       }
-    };
 
-    this.crashWith = function (otherobj) {
-      return !(
-        this.y + this.height < otherobj.y ||
-        this.y > otherobj.y + otherobj.height ||
-        this.x + this.width < otherobj.x ||
-        this.x > otherobj.x + otherobj.width
-      );
-    };
-  }
+      myScore.text = "SCORE: " + frameNo;
+      myScore.update();
+      myGamePiece.newPos();
+      myGamePiece.update();
 
-  function updateGameArea(timestamp) {
-    const delta = (timestamp - lastTimestamp) / 16.67; // relative to 60fps
-    lastTimestamp = timestamp;
-
-    for (let i = 0; i < myObstacles.length; i++) {
-      if (myGamePiece.crashWith(myObstacles[i])) {
-        gameOver = true;
-        document.getElementById("playAgainButton").style.display = "inline-flex";
-        return;
+      if (!gameOver) {
+        animationFrameId = requestAnimationFrame(updateGameArea);
       }
     }
 
-    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-    frameNo++;
-
-    if (frameNo === 1 || everyinterval(150)) {
-      const x = GAME_WIDTH;
-      const minHeight = 20;
-      const maxHeight = 200;
-      const height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
-      const minGap = 50;
-      const maxGap = 120;
-      const gap = Math.floor(Math.random() * (maxGap - minGap + 1) + minGap);
-      myObstacles.push(new component(10, height, "#3a3b4a", x, 0));
-      myObstacles.push(new component(10, GAME_HEIGHT - height - gap, "#3a3b4a", x, height + gap));
+    function everyinterval(n) {
+      return (frameNo / n) % 1 === 0;
     }
 
-    for (let i = 0; i < myObstacles.length; i++) {
-      myObstacles[i].x -= 1 * delta; // scale movement with delta
-      myObstacles[i].update();
+    function accelerate(n) {
+      if (myGamePiece) myGamePiece.gravity = n;
     }
 
-    myScore.text = "SCORE: " + frameNo;
-    myScore.update();
-    myGamePiece.newPos();
-    myGamePiece.update();
+    // Pointer events
+    canvas.addEventListener("pointerdown", e => accelerate(-0.2));
+    canvas.addEventListener("pointerup", e => accelerate(0.05));
 
-    if (!gameOver) {
-      animationFrameId = requestAnimationFrame(updateGameArea);
-    }
-  }
+    // Buttons
+    document.getElementById("startButton").addEventListener("click", startGame);
+    document.getElementById("playAgainButton").addEventListener("click", resetGame);
 
-  function everyinterval(n) {
-    return (frameNo / n) % 1 === 0;
-  }
+    // Prevent double-tap zoom & pinch zoom on mobile
+    const container = document.getElementById("gameContainer");
+    let lastTouchEnd = 0;
+    container.addEventListener("touchend", e => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
 
-  function accelerate(n) {
-    if (myGamePiece) myGamePiece.gravity = n;
-  }
-
-  // Pointer events
-  canvas.addEventListener("pointerdown", e => accelerate(-0.2));
-  canvas.addEventListener("pointerup", e => accelerate(0.05));
-
-  // Buttons
-  document.getElementById("startButton").addEventListener("click", startGame);
-  document.getElementById("playAgainButton").addEventListener("click", resetGame);
-
-  // Prevent text selection
-  document.getElementById("gameContainer").style.userSelect = "none";
-</script>
-
+    container.addEventListener("touchmove", e => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+  </script>
 </section>
-
-
-
 
 
   <footer>
