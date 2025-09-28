@@ -608,164 +608,182 @@ fetch('Assets/gallery/gallery.json', { cache: 'no-cache' })
   </div>
 
   <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
 
-    const GAME_WIDTH = 480;
-    const GAME_HEIGHT = 270;
-    canvas.width = GAME_WIDTH;
-    canvas.height = GAME_HEIGHT;
+  const GAME_WIDTH = 480;
+  const GAME_HEIGHT = 270;
 
-    function scaleCanvas() {
-      let scale;
-      if (window.innerWidth < 600) { // mobile
-        scale = Math.min(window.innerWidth * 0.95 / GAME_WIDTH, window.innerHeight * 0.35 / GAME_HEIGHT);
-      } else { // desktop
-        // make use of more horizontal space but keep vertical space reasonable
-        scale = Math.min(Math.min(800, window.innerWidth * 0.8) / GAME_WIDTH, window.innerHeight * 0.45 / GAME_HEIGHT);
+  let scale = 1;
+  let animationFrameId;
+  let lastTimestamp = 0;
+
+  function resizeCanvas() {
+    // Logical size
+    let maxWidth = Math.min(800, window.innerWidth * 0.9);
+    let maxHeight = window.innerHeight * 0.6;
+
+    scale = Math.min(maxWidth / GAME_WIDTH, maxHeight / GAME_HEIGHT);
+
+    // Account for high DPI displays
+const dpr = window.devicePixelRatio || 1;
+canvas.width = GAME_WIDTH * dpr;
+canvas.height = GAME_HEIGHT * dpr;
+canvas.style.width = GAME_WIDTH * scale + "px";
+canvas.style.height = GAME_HEIGHT * scale + "px";
+
+// Only account for DPR — not scaling — in drawing space
+ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  // Game state
+  let myGamePiece, myObstacles = [], myScore;
+  let myGameStarted = false;
+  let gameOver = false;
+  let frameNo = 0;
+
+  const gamePieceImage = new Image();
+  gamePieceImage.src = "https://raw.githubusercontent.com/nightswayband/nightsway.com/refs/heads/main/Assets/gamepiece.PNG";
+
+  function startGame() {
+    if (myGameStarted) return;
+    myGameStarted = true;
+    gameOver = false;
+
+    document.getElementById("startButton").style.display = "none";
+    document.getElementById("playAgainButton").style.display = "none";
+
+    myObstacles = [];
+    frameNo = 0;
+    myGamePiece = new component(30, 30, gamePieceImage, 10, 120, "image");
+    myGamePiece.gravity = 0.05;
+    myScore = new component("30px", "Inter", "#b9bac6", 10, 40, "text");
+
+    cancelAnimationFrame(animationFrameId);
+    lastTimestamp = performance.now();
+    requestAnimationFrame(updateGameArea);
+  }
+
+  function resetGame() {
+    myGameStarted = false;
+    startGame();
+  }
+
+  function component(width, height, color, x, y, type) {
+    this.type = type;
+    this.width = width;
+    this.height = height;
+    this.x = x;
+    this.y = y;
+    this.gravity = 0;
+    this.gravitySpeed = 0;
+
+    this.update = function () {
+      if (this.type === "text") {
+        ctx.font = width + " " + height;
+        ctx.fillStyle = color;
+        ctx.fillText(this.text, this.x, this.y);
+      } else if (this.type === "image") {
+        ctx.drawImage(color, this.x, this.y, this.width, this.height);
+      } else {
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
       }
-      canvas.style.width = GAME_WIDTH * scale + "px";
-      canvas.style.height = GAME_HEIGHT * scale + "px";
-    }
-    window.addEventListener("resize", scaleCanvas);
-    scaleCanvas();
+    };
 
-    let myGamePiece, myObstacles = [], myScore;
-    let gameInterval = null;
-    let myGameStarted = false;
-    let gameOver = false;
-    let frameNo = 0;
+    this.newPos = function () {
+      this.gravitySpeed += this.gravity;
+      this.y += this.gravitySpeed;
+      this.hitBounds();
+    };
 
-    const gamePieceImage = new Image();
-    gamePieceImage.src = "https://raw.githubusercontent.com/nightswayband/nightsway.com/refs/heads/main/Assets/gamepiece.PNG";
-
-    function startGame() {
-      if (myGameStarted) return;
-      myGameStarted = true;
-      gameOver = false;
-
-      document.getElementById("startButton").style.display = "none";
-      document.getElementById("playAgainButton").style.display = "none";
-
-      myObstacles = [];
-      frameNo = 0;
-      myGamePiece = new component(40, 40, gamePieceImage, 10, 120, "image");
-      myGamePiece.gravity = 0.05;
-      myScore = new component("30px", "Inter", "#b9bac6",  10, 40, "text");
-
-      clearInterval(gameInterval);
-      gameInterval = setInterval(updateGameArea, 20);
-    }
-
-    function resetGame() {
-      myGameStarted = false;
-      startGame();
-    }
-
-    function component(width, height, color, x, y, type) {
-      this.type = type;
-      this.width = width;
-      this.height = height;
-      this.x = x;
-      this.y = y;
-      this.gravity = 0;
-      this.gravitySpeed = 0;
-
-      this.update = function () {
-        if (this.type === "text") {
-          ctx.font = width + " " + height;
-          ctx.fillStyle = color;
-          ctx.fillText(this.text, this.x, this.y);
-        } else if (this.type === "image") {
-          ctx.drawImage(color, this.x, this.y, this.width, this.height);
-        } else {
-          ctx.fillStyle = color;
-          ctx.fillRect(this.x, this.y, this.width, this.height);
-        }
-      };
-
-      this.newPos = function () {
-        this.gravitySpeed += this.gravity;
-        this.y += this.gravitySpeed;
-        this.hitBounds();
-      };
-
-      this.hitBounds = function () {
-        if (this.y + this.height > GAME_HEIGHT) {
-          this.y = GAME_HEIGHT - this.height;
-          this.gravitySpeed = 0;
-        }
-        if (this.y < 0) {
-          this.y = 0;
-          this.gravitySpeed = 0;
-        }
-      };
-
-      this.crashWith = function (otherobj) {
-        return !(
-          this.y + this.height < otherobj.y ||
-          this.y > otherobj.y + otherobj.height ||
-          this.x + this.width < otherobj.x ||
-          this.x > otherobj.x + otherobj.width
-        );
-      };
-    }
-
-    function updateGameArea() {
-      for (let i = 0; i < myObstacles.length; i++) {
-        if (myGamePiece.crashWith(myObstacles[i])) {
-          clearInterval(gameInterval);
-          gameOver = true;
-          document.getElementById("playAgainButton").style.display = "inline-flex";
-          return;
-        }
+    this.hitBounds = function () {
+      if (this.y + this.height > GAME_HEIGHT) {
+        this.y = GAME_HEIGHT - this.height;
+        this.gravitySpeed = 0;
       }
-
-      ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-      frameNo++;
-
-      if (frameNo === 1 || everyinterval(150)) {
-        const x = GAME_WIDTH;
-        const minHeight = 20;
-        const maxHeight = 200;
-        const height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
-        const minGap = 50;
-        const maxGap = 120;
-        const gap = Math.floor(Math.random() * (maxGap - minGap + 1) + minGap);
-        myObstacles.push(new component(10, height, "#3a3b4a", x, 0));
-        myObstacles.push(new component(10, GAME_HEIGHT - height - gap, "#3a3b4a", x, height + gap));
+      if (this.y < 0) {
+        this.y = 0;
+        this.gravitySpeed = 0;
       }
+    };
 
-      for (let i = 0; i < myObstacles.length; i++) {
-        myObstacles[i].x -= 1;
-        myObstacles[i].update();
+    this.crashWith = function (otherobj) {
+      return !(
+        this.y + this.height < otherobj.y ||
+        this.y > otherobj.y + otherobj.height ||
+        this.x + this.width < otherobj.x ||
+        this.x > otherobj.x + otherobj.width
+      );
+    };
+  }
+
+  function updateGameArea(timestamp) {
+    const delta = (timestamp - lastTimestamp) / 16.67; // relative to 60fps
+    lastTimestamp = timestamp;
+
+    for (let i = 0; i < myObstacles.length; i++) {
+      if (myGamePiece.crashWith(myObstacles[i])) {
+        gameOver = true;
+        document.getElementById("playAgainButton").style.display = "inline-flex";
+        return;
       }
-
-      myScore.text = "SCORE: " + frameNo;
-      myScore.update();
-      myGamePiece.newPos();
-      myGamePiece.update();
     }
 
-    function everyinterval(n) {
-      return (frameNo / n) % 1 === 0;
+    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    frameNo++;
+
+    if (frameNo === 1 || everyinterval(150)) {
+      const x = GAME_WIDTH;
+      const minHeight = 20;
+      const maxHeight = 200;
+      const height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
+      const minGap = 50;
+      const maxGap = 120;
+      const gap = Math.floor(Math.random() * (maxGap - minGap + 1) + minGap);
+      myObstacles.push(new component(10, height, "#3a3b4a", x, 0));
+      myObstacles.push(new component(10, GAME_HEIGHT - height - gap, "#3a3b4a", x, height + gap));
     }
 
-    function accelerate(n) {
-      if (myGamePiece) myGamePiece.gravity = n;
+    for (let i = 0; i < myObstacles.length; i++) {
+      myObstacles[i].x -= 1 * delta; // scale movement with delta
+      myObstacles[i].update();
     }
 
-    // Pointer events for PC + mobile
-    canvas.addEventListener("pointerdown", e => accelerate(-0.2));
-    canvas.addEventListener("pointerup", e => accelerate(0.05));
+    myScore.text = "SCORE: " + frameNo;
+    myScore.update();
+    myGamePiece.newPos();
+    myGamePiece.update();
 
-    // Buttons
-    document.getElementById("startButton").addEventListener("click", startGame);
-    document.getElementById("playAgainButton").addEventListener("click", resetGame);
+    if (!gameOver) {
+      animationFrameId = requestAnimationFrame(updateGameArea);
+    }
+  }
 
-    // Prevent text selection
-    document.getElementById("gameContainer").style.userSelect = "none";
-  </script>
+  function everyinterval(n) {
+    return (frameNo / n) % 1 === 0;
+  }
+
+  function accelerate(n) {
+    if (myGamePiece) myGamePiece.gravity = n;
+  }
+
+  // Pointer events
+  canvas.addEventListener("pointerdown", e => accelerate(-0.2));
+  canvas.addEventListener("pointerup", e => accelerate(0.05));
+
+  // Buttons
+  document.getElementById("startButton").addEventListener("click", startGame);
+  document.getElementById("playAgainButton").addEventListener("click", resetGame);
+
+  // Prevent text selection
+  document.getElementById("gameContainer").style.userSelect = "none";
+</script>
+
 </section>
 
 
